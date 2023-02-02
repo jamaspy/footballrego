@@ -3,7 +3,7 @@ import crossFetch from "cross-fetch";
 const BASE_URL =
   process.env.NODE_ENV === "production"
     ? "https://myapp.com"
-    : "http://localhost:3000";
+    : "http://localhost:3001";
 export const apolloClient = new ApolloClient({
   cache: new InMemoryCache(),
   link: new HttpLink({
