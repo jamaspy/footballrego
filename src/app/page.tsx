@@ -1,91 +1,73 @@
-import Image from 'next/image'
-import { Inter } from '@next/font/google'
-import styles from './page.module.css'
+"use client";
+import { gql, useQuery } from "@apollo/client";
+import { Inter } from "@next/font/google";
+import { User } from "@prisma/client";
+import Image from "next/image";
+import styles from "./page.module.css";
+const inter = Inter({ subsets: ["latin"] });
+const allUsersQuery = gql`
+  query {
+    users {
+      firstName
+      lastName
+      dateOfBirth
+      phone
+      email
+      address
+      preferredPosition
+      emergencyContactName
+      emergencyContactPhone
+      emergencyContactRelationship
+      image
+      role
+    }
+  }
+`;
 
-const inter = Inter({ subsets: ['latin'] })
+const Row = ({ item, label }) => {
+  return (
+    <div className="flex flex-row items-center justify-center">
+      <p className="font-bold mr-4">{label}:</p>
+      <p>{item}</p>
+    </div>
+  );
+};
 
 export default function Home() {
+  const { data, loading, error } = useQuery(allUsersQuery);
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error.message}</p>;
   return (
     <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
+      <h1>Hello World</h1>
+      {data.users.map((user: User) => (
+        <div
+          key={user.email}
+          className="border rounded-md flex items-center flex-col"
+        >
+          <div className="rounded-full overflow-hidden w-24 h-24 shadow-md ">
+            <img
+              src={user.image}
+              alt="Picture of the author"
+              className="mx-auto"
             />
-          </a>
+          </div>
+          <div className="flex items-start flex-col">
+            {Object.values(user).map((item, index) => {
+              if (item) {
+                console.log(item);
+                return (
+                  <Row
+                    key={index}
+                    item={item}
+                    label={Object.keys(user)[index]}
+                  />
+                );
+              }
+            })}
+          </div>
         </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-        <div className={styles.thirteen}>
-          <Image src="/thirteen.svg" alt="13" width={40} height={31} priority />
-        </div>
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://beta.nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
+      ))}
     </main>
-  )
+  );
 }
